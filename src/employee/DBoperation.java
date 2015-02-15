@@ -26,15 +26,31 @@ public class DBoperation {
 		conn.setDoOutput(true);
 		OutputStream os=conn.getOutputStream();
 		FormUtility form = new FormUtility(os, null);
-		form.add("dept",dep);
 		form.add("name",inname);
 		form.add("surname",surname);
 		form.add("birthday",conv(db));
 		form.add("bonus",bonus+"");
 		form.add("salamt",salaryAmt+"");
-		form.add("saldate",conv(salaryDate));
-		form.add("phone",phone);
-		form.add("address",addres);
+		if (!salaryDate.equals(""))
+			form.add("saldate",conv(salaryDate));
+		else
+			form.add("saldate","");
+
+		if (!phone.equals(""))
+			form.add("phone",phone);
+		else
+			form.add("phone"," ");
+
+		if (!addres.equals(""))
+			form.add("address",addres);
+		else
+			form.add("address"," ");
+
+		if (!dep.equals(""))
+			form.add("dept",dep);
+		else
+			form.add("dept"," ");
+
 		form.add("koef",koef+"");
 		form.complete();
 		InputStream is = conn.getInputStream();

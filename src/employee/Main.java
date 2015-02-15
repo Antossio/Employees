@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class Main {
 
 	public static boolean datab;
-	public static String link="xxxxxxxxxxxx"; //link to website with database. Can be provide on request  
+	public static String link="-------------"; //link to website with database. Can be provide on request  
 
 	public static void main(String[] args) throws SQLException {
 		Win win=new Win();

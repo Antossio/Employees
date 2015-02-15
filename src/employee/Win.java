@@ -9,6 +9,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +38,7 @@ public class Win extends JFrame implements ActionListener{
 	JLabel idi=new JLabel();
 	JLabel nm=new JLabel("Name:");
 	JLabel sn=new JLabel("Surname:");
-	JLabel bd=new JLabel("Birthday:");
+	JLabel bd=new JLabel("Date of birth:");
 	JLabel sal=new JLabel("Salary amt:");
 	JLabel sald=new JLabel("Salary date:");
 	JLabel ph=new JLabel("Phone:");
@@ -45,11 +46,14 @@ public class Win extends JFrame implements ActionListener{
 	JLabel dp=new JLabel("Department:");
 	JLabel type=new JLabel("Category:");
 	JLabel source=new JLabel("Source:");
+	JLabel error=new JLabel("");
+	JLabel formatBD=new JLabel("(DD.MM.YYYY)");
+
 	JComboBox <String> sourceData=new JComboBox<String>();
 
 	JLabel nameForsearch=new JLabel("Name (start with):");
 	JLabel snameForSearch=new JLabel("Surname (start with):");
-	JLabel bdForSearch=new JLabel("Birthday (range or one val.):");
+	JLabel bdForSearch=new JLabel("Date of birth(one/two val.):");
 	JLabel phForSearch=new JLabel("Phone (contains):");
 	JLabel adForSearch=new JLabel("Address (contains):");
 
@@ -149,10 +153,12 @@ public class Win extends JFrame implements ActionListener{
 		pan1.add(type);
 		cnt.add(source);
 		cnt.add(sourceData);
+		pan1.add(formatBD);
 
 		name.setBounds(85,40,80,20);
 		sname.setBounds(85,60,80,20);
 		birday.setBounds(85,80,80,20);
+		formatBD.setBounds(166,80,100,20);
 		salar.setBounds(85,100,80,20);
 		saldate.setBounds(85,120,80,20);
 		fone.setBounds(85,140,80,20);
@@ -224,6 +230,8 @@ public class Win extends JFrame implements ActionListener{
 		sourceData.addItem("file");
 
 		add.setBounds(0,240,85,20);
+		error.setBounds(0, 260, 300, 20);
+		pan1.add(error);
 		pan1.add(add);
 		staff.addItem("staff");
 		staff.addItem("manager");
@@ -249,8 +257,6 @@ public class Win extends JFrame implements ActionListener{
 
 		add.addActionListener(this);
 
-		//DBConnection.connect();
-
 		tpane.addChangeListener(new ChangeListener(){
 			public void stateChanged(ChangeEvent arg0) {
 				if(tpane.getSelectedIndex()==1)
@@ -272,9 +278,8 @@ public class Win extends JFrame implements ActionListener{
 				}
 			}
 		});
-
-
 		repaint();
+
 		staff.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				if(staff.getSelectedItem().equals("staff"))
@@ -303,66 +308,63 @@ public class Win extends JFrame implements ActionListener{
 				}
 
 			}});
-
 		WindowListener listener = new FrameListener();
 		this.addWindowListener(listener);
-
-
 	}
 
 	public void actionPerformed(ActionEvent e) {
+		int inputSalaryAmt=0;
 		int inputKoef=0;
 		int inputBonus=0;
 		int id=0;
 		int maxId=0;
 		Object src=e.getSource();
-
 		if(src==add)
 		{
-			String inputName=name.getText();
-			String inputSurname=sname.getText();
-			String inputDb=birday.getText();
-			int inputSalaryAmt=Integer.parseInt(salar.getText());
-			String inputSalaryDate=saldate.getText();
-			if(!bons.getText().equals(""))
-			{
-				inputBonus=Integer.parseInt(bons.getText());
-			}
-			if(!coefic.getText().equals("")){
-				inputKoef=Integer.parseInt(coefic.getText());
-			}
-			String inputPhone=fone.getText();
-			String inputAddres=adr.getText();
-			String inputDep=depar.getText();
+			if(checkInpData(name.getText(),sname.getText(),birday.getText()))
+			{			
+				String inputName=name.getText();
+				String inputSurname=sname.getText();
+				String inputDb=birday.getText();
+				if(!salar.getText().equals(""))
+					inputSalaryAmt=Integer.parseInt(salar.getText());
+				String inputSalaryDate=saldate.getText();
+				if(!bons.getText().equals(""))
+					inputBonus=Integer.parseInt(bons.getText());
+				if(!coefic.getText().equals(""))
+					inputKoef=Integer.parseInt(coefic.getText());
+				String inputPhone=fone.getText();
+				String inputAddres=adr.getText();
+				String inputDep=depar.getText();
 
-			if(Main.datab)
-			{
-				try {
-					DBoperation.write(inputName, inputSurname, inputDb, inputSalaryDate, inputSalaryAmt, inputBonus, inputKoef, inputPhone, inputAddres, inputDep);
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-				initPan1(getMax());
-			}
-			else
-			{
-				try
+				if(Main.datab)
 				{
-					switch(emp)
-					{
-					case "staff":Execution.addStaff(inputName, inputSurname, inputDb, inputSalaryDate, inputSalaryAmt, inputPhone, inputAddres, inputDep);
-					break;
-					case "manager": Execution.addManager(inputName, inputSurname, inputDb, inputSalaryDate, inputSalaryAmt, inputBonus, inputPhone, inputAddres, inputDep);
-					break;
-					case "head of department":Execution.addHeadOfDep(inputName, inputSurname, inputDb, inputSalaryDate, inputSalaryAmt, inputBonus, inputKoef, inputPhone, inputAddres, inputDep);
+					try {
+						DBoperation.write(inputName, inputSurname, inputDb, inputSalaryDate, inputSalaryAmt, inputBonus, inputKoef, inputPhone, inputAddres, inputDep);
+					} catch (IOException e1) {
+						e1.printStackTrace();
 					}
-				}catch(Exception er)
-				{
-
+					initPan1(getMax());
 				}
-				initPan1(Employee.id);
-			}
+				else
+				{
+					try
+					{
+						switch(emp)
+						{
+						case "staff":Execution.addStaff(inputName, inputSurname, inputDb, inputSalaryDate, inputSalaryAmt, inputPhone, inputAddres, inputDep);
+						break;
+						case "manager": Execution.addManager(inputName, inputSurname, inputDb, inputSalaryDate, inputSalaryAmt, inputBonus, inputPhone, inputAddres, inputDep);
+						break;
+						case "head of department":Execution.addHeadOfDep(inputName, inputSurname, inputDb, inputSalaryDate, inputSalaryAmt, inputBonus, inputKoef, inputPhone, inputAddres, inputDep);
+						}
+					}catch(Exception er)
+					{
 
+					}
+					initPan1(Employee.id);
+				}
+			}
 		}
 
 		if(src==remove)
@@ -373,17 +375,13 @@ public class Win extends JFrame implements ActionListener{
 			}
 			if(Main.datab)
 			{
-				if(DBoperation.remove(id)==1)
-					message.setText("Employee with id = "+id+" removed.");
-				else
-					message.setText("No such id.");
+				if(DBoperation.remove(id)==1) message.setText("Employee with id = "+id+" removed.");
+				else message.setText("No such id.");
 			}
 			else
 			{
-				if(Execution.removeEmp(id))
-					message.setText("Employee with id = "+id+" removed.");
-				else
-					message.setText("No such id.");
+				if(Execution.removeEmp(id)) message.setText("Employee with id = "+id+" removed.");
+				else message.setText("No such id.");
 			}
 		}
 
@@ -415,9 +413,7 @@ public class Win extends JFrame implements ActionListener{
 		}
 
 		if(src==search){
-
 			ta.setText("");
-
 			GregorianCalendar bdStart=null;
 			GregorianCalendar bdEnd=null;
 			String n=nameInpSearch.getText();
@@ -460,6 +456,7 @@ public class Win extends JFrame implements ActionListener{
 		bons.setText("");
 		coefic.setText("");
 		idi.setText("id:                        "+(maxId+1));
+		error.setText("");
 	}
 
 	public void initRem()
@@ -469,13 +466,11 @@ public class Win extends JFrame implements ActionListener{
 	}
 
 	public int sourseChoosen()
-	{
-		return sourceData.getSelectedIndex();
-	}
+	{return sourceData.getSelectedIndex();}
 
 	public int getMax() {
 		int id=0;
-		String page = "http://gestalt.in.ua/selectMax.php";
+		String page="http://"+Main.link+"/selectMax.php";
 		try {
 			URL u = new URL(page);
 			String str = downloadPage(u);
@@ -483,23 +478,18 @@ public class Win extends JFrame implements ActionListener{
 				return 0;
 			id=Integer.parseInt(str.trim());
 		} catch (MalformedURLException e1) {
-
 			e1.printStackTrace();
 		} catch (IOException e) {
-
 			e.printStackTrace();
 		}
 		return id;
 	}
 
-
 	public String downloadPage(URL url) throws IOException
 	{
 		StringBuffer result = new StringBuffer();
 		byte buffer[] = new byte[8192];
-
 		InputStream s = url.openStream();
-
 		int size = 0;
 		do
 		{
@@ -510,10 +500,40 @@ public class Win extends JFrame implements ActionListener{
 		return result.toString();
 	}
 
-
+	boolean checkInpData(String name, String sname, String bd){
+		if(name.equals(""))
+		{
+			error.setText("Field 'Name' is empty");
+			return false;
+		}
+		if(name.length()<2)
+		{
+			error.setText("Name must be more than 2 symbols ");
+			return false;
+		}
+		if(sname.equals(""))
+		{
+			error.setText("Field 'Surname' is empty");
+			return false;
+		}
+		if(sname.length()<2)
+		{
+			error.setText("Surname must be more than 2 symbols ");
+			return false;
+		}
+		if(bd.equals(""))
+		{
+			error.setText("Field 'Birthday' is empty");
+			return false;
+		}
+		if(!bd.matches("^\\d{2}\\.\\d{2}\\.\\d{4}"))
+		{
+			error.setText("Date of birth wrong format");
+			return false;
+		}
+		return true;
+	}
 }
-
-
 
 class FrameListener extends WindowAdapter{
 	public void windowClosing(WindowEvent e){
@@ -521,7 +541,8 @@ class FrameListener extends WindowAdapter{
 		{
 			try
 			{
-				FileOutputStream fos=new FileOutputStream("data.bin");
+				File f=new File("data.bin");
+				FileOutputStream fos=new FileOutputStream(f);
 				ObjectOutputStream oos=new ObjectOutputStream(fos);
 				oos.writeInt(Employee.id);
 				oos.writeObject(Execution.dataBase);
@@ -534,4 +555,5 @@ class FrameListener extends WindowAdapter{
 		}
 		System.exit(0);
 	}
+
 }
