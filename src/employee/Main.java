@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 public class Main {
     public static boolean datab;
-    public static String link="www.gestalt.in.ua";  
+    public static String link="";  
 
     public static void main(String[] args) throws SQLException {
 	Win win = new Win();
